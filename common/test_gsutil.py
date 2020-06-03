@@ -42,22 +42,13 @@ class TestGsutilRsync:
         mocked_gsutil_command.assert_called_with(
             ['rsync', '-d', '-r', '/src', 'gs://dst'])
 
-    def test_gsutil_options(self):
-        """Tests that rsync works as intended when supplied a gsutil_options
-        argument."""
-        flag = '-flag'
-        with mock.patch(
-                'common.gsutil.gsutil_command') as mocked_gsutil_command:
-            gsutil.rsync(self.SRC, self.DST, gsutil_options=[flag])
-        assert flag == mocked_gsutil_command.call_args_list[0][0][0][0]
-
     def test_options(self):
-        """Tests that rsync works as intended when supplied a gsutil_options
+        """Tests that rsync works as intended when supplied a gsutil options
         argument."""
         flag = '-flag'
         with mock.patch(
                 'common.gsutil.gsutil_command') as mocked_gsutil_command:
-            gsutil.rsync(self.SRC, self.DST, options=[flag])
+            gsutil.rsync(self.SRC, self.DST, options={"gsutil": [flag]})
         assert flag in mocked_gsutil_command.call_args_list[0][0][0]
 
     @pytest.mark.parametrize(('kwarg_for_rsync', 'flag'), [('delete', '-d'),
