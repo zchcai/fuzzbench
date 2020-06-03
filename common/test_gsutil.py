@@ -42,7 +42,7 @@ class TestGsutilRsync:
         mocked_gsutil_command.assert_called_with(
             ['rsync', '-d', '-r', '/src', 'gs://dst'])
 
-    def test_gsutil_options(self):
+    def test_options(self):
         """Tests that rsync works as intended when supplied a gsutil options
         argument."""
         flag = '-flag'
