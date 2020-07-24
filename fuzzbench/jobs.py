@@ -24,8 +24,7 @@ def build_image(name: str):
     image_tag = os.path.join(BASE_TAG, name)
     subprocess.run(['docker', 'pull', image_tag], check=True)
     subprocess.run(
-        ['docker', 'build', '--tag', image_tag,
-        '--cpus', 1,
+        ['docker', 'build', '--cpuset-cpus', '0-2', '--tag', image_tag,
          os.path.join('docker', name)],
         check=True)
     return True
