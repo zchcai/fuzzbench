@@ -27,7 +27,7 @@ def main():
         queue = rq.Queue('build_n_run_queue')
         worker = rq.Worker([queue], connection=redis_connection)
 
-        while len(queue) or queue.deferred_job_registry.count:
+        while len(queue) + queue.deferred_job_registry.count > 0:
             worker.work(burst=True)
             time.sleep(REASSIGN_GAP_TIME)
 
