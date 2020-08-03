@@ -15,6 +15,7 @@
 
 import os
 import subprocess
+import time
 
 BASE_TAG = 'gcr.io/fuzzbench'
 
@@ -35,8 +36,9 @@ def build_image(image):
     return True
 
 
-def run_trial():
+def run_trial(name):
     """Runs a trial."""
+    time.sleep(10)
     return True
 
 

@@ -29,9 +29,14 @@ def run_experiment(config):
     # Create the queue for scheduling build jobs and run jobs.
     queue = rq.Queue('build_n_run_queue')
 
+    """
     images_to_build = docker_images.get_images_to_build(config['fuzzers'],
                                                         config['benchmarks'])
+    """
     jobs_list = []
+    jobs_list.append(queue.enqueue(jobs.run_trial, name='second', job_id='second', depends_on='first'))
+    jobs_list.append(queue.enqueue(jobs.run_trial, name='first', job_id='first'))
+    """
     for name, obj in images_to_build.items():
         depends = obj.get('depends_on', None)
         jobs_list.append(
@@ -41,6 +46,7 @@ def run_experiment(config):
                           result_ttl=-1,
                           job_id=name,
                           depends_on=None if not depends else depends[0]))
+    """
 
     while True:
         print('Current status of jobs:')
@@ -49,8 +55,6 @@ def run_experiment(config):
         print('\tdeferred:\t%d' % queue.deferred_job_registry.count)
         print('\tfinished:\t%d' % queue.finished_job_registry.count)
         print('\tfailed:\t%d' % queue.failed_job_registry.count)
-        for job in jobs_list:
-            print('  %s : %s\t(%s)' % (job.func_name, job.get_status(), job.id))
 
         if all([job.result is not None for job in jobs_list]):
             break
@@ -67,7 +71,15 @@ def main():
     config = config_utils.validate_and_expand(config)
 
     with rq.Connection(redis_connection):
-        return run_experiment(config)
+        run_experiment(config)
+        all_jobs = rq.job.Job.fetch_many(['first', 'second'],
+                                         connection=redis_connection)
+        for job in all_jobs:
+            print('  %s : %s\t(%s)' % (job.func_name, job.get_status(), job.id))
+            print('   enqueued_at: ', job.enqueued_at)
+            print('   started_at: ', job.started_at)
+            print('   ended_at: ', job.ended_at)
+
 
 
 if __name__ == '__main__':
